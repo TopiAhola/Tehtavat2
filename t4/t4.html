@@ -10,8 +10,22 @@
 </head>
 
 <body>
+
+<div>
+<h1>Your location</h1>
+<form id="lomake" name="lomake">
+  <input id="hakukentta" name="q" type="text" placeholder="your address here">
+  <input type="submit" value="Search">
+</form>
+  <p>
+    Give your address and click search to find nearest restaurants.<br>
+    If address search doesn't work or you leave it empty the search will use your browser location.<br>
+    If that doesn't work it will default to Jyväskylä.
+  </p>
+</div>
+
   <h1>Restaurants</h1>
-  <table>
+  <table id="restaurants">
     <tr>
       <th>Name</th>
       <th>Address</th>
