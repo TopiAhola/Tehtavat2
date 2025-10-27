@@ -1,3 +1,5 @@
+'use strict';
+
 const restaurants = [
   {
     location: {type: 'Point', coordinates: [25.018456, 60.228982]},
@@ -770,98 +772,128 @@ const restaurants = [
   },
 ];
 
+////////////////////////////////////////////////////////////
 // your code here
+
 let lomake = document.getElementById("lomake");
 lomake.addEventListener("submit", submit_funktio);
+let userLocation = [0,0];
 
+//Try getting location
+try {
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      userLocation = [position.coords.longitude, position.coords.latitude]
+      console.log(userLocation+"set by callback")
+      sortRestaurants(userLocation);
+    },
+    ()=> {
+      console.log("getCurrentPosition not available")
+      userLocation = [26,62];
+      console.log("Default location used by callback")
+      sortRestaurants(userLocation);
+    }
+  );
+} catch (error) {
+  console.log("Location error");
+  userLocation = [25,62];
+  console.log("Default location 2 used")
+  sortRestaurants(userLocation);
+}
+
+
+
+////////////////////////////////////////////////////////////
 async function submit_funktio() {
   console.log("Submit funktio")
   event.preventDefault()
 
+  let addressLocation = [0,0];
   let hakusana = document.getElementById("hakukentta").value;
   console.log(hakusana);
 
   //Form request
   let header = {
     method: 'GET',
-      headers: {
-        // GET API key here from ENV
-      }
+    headers: {
+      // GET API key here from ENV
+    }
   };
-  let query =`https://api.digitransit.fi/geocoding/v1/search?text=${hakusana}&size=1`
+  let query = `https://api.digitransit.fi/geocoding/v1/search?text=${hakusana}&size=1`
   console.log(query)
 
-
   try {
-    let vastaus = await fetch(query,header);
-    let userLocation;
+    let vastaus = await fetch(query, header);
     //Try setting location by address
     if (vastaus.ok) {
       let vastaus_json = await vastaus.json();
       console.log(vastaus_json)
-      userLocation = vastaus_json["features"][0]["geometry"]["coordinates"];
+      addressLocation = vastaus_json["features"][0]["geometry"]["coordinates"];
+      console.log("Address location: " + addressLocation);
+      sortRestaurants(addressLocation);
 
     } else {
-      userLocation = [26,62];
-      console.log("Default location used")
+      addressLocation = [26, 62];
+      console.log("Default location used..")
+      sortRestaurants(addressLocation);
     }
-    console.log(userLocation)
+    console.log(addressLocation)
 
-    //Try getting location
-    try {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          userLocation = [position.coords.longitude, position.coords.latitude]
-          console.log(userLocation+"set by callback")
-        },
-        ()=> {
-          console.log("getCurrentPosition not available")}
-      );
-
-    } catch (error) {
-      console.log("Location error");
-      userLocation = [25,62];
-      console.log("Default location used")
-    }
-
-
-
-    //sort restaurants
-    restaurants.sort((a, b) => {
-      let aDistance = calculateDistance(a["location"]["coordinates"],userLocation);
-      let bDistance = calculateDistance(b.location.coordinates,userLocation);
-      return aDistance - bDistance;
-    })
-
-    //add sorted restaurants
-    let restaurantTable = document.getElementById("restaurants");
-    let elemArray = document.getElementsByClassName("restaurant");
-    if (elemArray.length > 0) {
-      elemArray.forEach(elem => {elem.remove();});
-    }
-    for (let r of restaurants) {
-      let rest = document.createElement("p");
-      rest.setAttribute("class", "restaurant");
-      rest.innerHTML = r.name+"<br>"
-        +r.address+"<br>"
-        +r.postalCode+" "+r.city+"<br>"
-        +r.company+"<br>"
-        +"phone:"+r.phone+"<br>";
-      +`Angular Distance:` +calculateDistance(r["location"]["coordinates"],userLocation);
-
-      restaurantTable.appendChild(rest);
-    }
-
-
-  }
-  catch (error) {
+  } catch (error) {
     console.log(error.message);
   }
 }
 
 
+function sortRestaurants(location) {
+  //sort restaurants
+  let restaurantArray =[];
+  for (let r of restaurants) {
+    restaurantArray.push(r);
+  }
+  restaurantArray.sort((a, b) => {
+    let aDistance = calculateDistance(a["location"]["coordinates"], location);
+    let bDistance = calculateDistance(b.location.coordinates, location);
+    return aDistance - bDistance;
+  })
+
+  //remove previous view
+  let restaurantTable = document.getElementById("restaurants");
+  restaurantTable.innerHTML = "<tr>\n" +
+    "<th>Name</th>\n" +
+    "<th>Address</th>\n" +
+    "</tr>";
+  /*
+  let elemArray = restaurantTable.getElementsByClassName("restaurant")
+  for (let elem of elemArray) {
+    restaurantTable.removeChild(elem);
+  }*/
+  console.log("restaurantTable cleared" );
+
+  //add sorted restaurants
+  for (let r of restaurantArray) {
+    let rest = document.createElement("tr");
+    rest.setAttribute("class", "restaurant");
+
+    let nameTd = document.createElement("td");
+    let addressTd = document.createElement("td");
+
+    nameTd.innerHTML = r.name + "<br>"
+      + r.company + "<br>"
+    +"Distance: "+calculateDistance(r.location.coordinates,location);
+
+    addressTd.innerHTML = r.address + "<br>"
+      + r.postalCode + " " + r.city + "<br>"
+      + "phone:" + r.phone + "<br>";
+
+    rest.append(nameTd, addressTd);
+    restaurantTable.appendChild(rest);
+  }
+}
 
 function calculateDistance(pointA, pointB){
-  return Math.sqrt(Math.pow((pointA[0]-pointB[0]), 2) + Math.pow((pointA[1]-pointB[1]), 2)  );
+  let distance = Math.sqrt(Math.pow((pointA[0]-pointB[0]), 2) + Math.pow((pointA[1]-pointB[1]), 2)  );
+  //console.log("Distance: "+pointA+"-"+pointB+" = "+distance)
+  return distance;
 }
 
