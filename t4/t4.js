@@ -859,15 +859,25 @@ function sortRestaurants(location) {
 
   //remove previous view
   let restaurantTable = document.getElementById("restaurants");
-  restaurantTable.innerHTML = "<tr>\n" +
-    "<th>Name</th>\n" +
-    "<th>Address</th>\n" +
-    "</tr>";
+
   /*
-  let elemArray = restaurantTable.getElementsByClassName("restaurant")
+  //Tämä toimii:
+    restaurantTable.innerHTML = "<tr>\n" +
+      "<th>Name</th>\n" +
+      "<th>Address</th>\n" +
+      "</tr>";
+      */
+
+  // Tämä ei toimi:
+  /*  const elemArray = restaurantTable.getElementsByClassName("restaurant") */
+
+  //Mutta tämä toimii!
+  const elemArray = restaurantTable.querySelectorAll(".restaurant")
   for (let elem of elemArray) {
-    restaurantTable.removeChild(elem);
-  }*/
+    elem.remove();                   //tämä toimii
+    //restaurantTable.removeChild(elem); //Tämä toimii myös
+  }
+
   console.log("restaurantTable cleared" );
 
   //add sorted restaurants
