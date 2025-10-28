@@ -25,6 +25,7 @@
   },
   "dependencies": {
     "geolib": "^3.3.4",
+    "leaflet": "^1.9.4",
     "npm": "^11.6.2",
     "puppeteer": "^21.0.2"
   }
