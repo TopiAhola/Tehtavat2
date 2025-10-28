@@ -806,7 +806,16 @@ function drawMap() {
         attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
     }).addTo(map);
 
-    let testMarker = L.marker(userLocation,{color : 'red', fillColor: '#ff0000'})
+    let redIcon = L.icon(
+        {iconUrl: "marker-icon-2x-red.png",
+            shadowUrl: 'leaf-shadow.png',
+            iconSize:     [25, 41],
+            shadowSize:   [50, 82],
+            iconAnchor:   [12, 41],
+            shadowAnchor: [0, 0],
+            popupAnchor:  [0, -41]
+        });
+    let testMarker = L.marker(userLocation,{icon : redIcon})
         .addTo(map)
         .bindPopup(`<h3>You are here</h3><p>${locationText}</p>`)
         .openPopup();
