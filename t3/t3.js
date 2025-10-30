@@ -20,7 +20,7 @@ let info = {
   "Browser window width" : window.innerWidth,
   "Browser window height" : window.innerHeight,
 
-  "Local date and time" : new Date().toLocaleString("fi-FI"),
+  "Local date and time" : new Date().toLocaleString("fi-FI", {day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Helsinki'}),
   "Time" : new Date().getHours()+":"+new Date().getMinutes(),
 
 }
